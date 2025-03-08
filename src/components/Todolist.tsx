@@ -32,14 +32,14 @@ const schema = yup.object().shape({
   const dispatch = useDispatch();
 
   const formVariants = {
-    hidden: { x: "-100vw", opacity: 0 }, // Start off-screen to the left
-    visible: { x: 0, opacity: 1 }, // Center and fully visible
-    exit: { x: "100vw", opacity: 0 }, // Exit off-screen to the right
+    hidden: { x: "-100vw", opacity: 0 }, 
+    visible: { x: 0, opacity: 1 }, 
+    exit: { x: "100vw", opacity: 0 }, 
   };
 
   const tableVariants = {
-    hidden: { y: "100vh", opacity: 0 }, // Start off-screen (bottom)
-    visible: { y: 0, opacity: 1 }, // Final position
+    hidden: { y: "100vh", opacity: 0 },
+    visible: { y: 0, opacity: 1 }, 
   };
 
   useEffect(() => {
@@ -88,7 +88,7 @@ const schema = yup.object().shape({
         )}
         <br />
           {open &&  (
-             <motion.div variants={formVariants} initial="hidden" animate="visible"exit="exit"
+             <motion.div variants={formVariants} initial="hidden" animate="visible" exit="exit"
              transition={{ type: "spring", stiffness: 300, damping: 20 }}>
             <div>
               <form onSubmit={handleSubmit(onSubmit)}>
