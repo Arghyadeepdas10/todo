@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
-import { Box, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material";
+import { Box, Button, IconButton, Input, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { addTodo, removeTodo, updateTodo } from "../Redux/Slice/todoSlice";
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
@@ -14,6 +14,7 @@ interface Todo {
     title: string;
     description: string;
     date: Date;
+    image?: string;
 }
 
 export default function Todolist() {
@@ -21,11 +22,13 @@ export default function Todolist() {
 const schema = yup.object().shape({
     title: yup.string().required("Title is required"),
     description: yup.string().required("Description is required"),
-    date: yup.date().required("Date is required")
+    date: yup.date().required("Date is required"),
+    image: yup.string().optional(),
 })
 
   const [open, setOpen] = useState(false);
   const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
+  const [img, setImg] = useState<File | null>(null);
   const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({resolver: yupResolver(schema),})
 
   const todos = useSelector((state: any) => state.todo.todos);
@@ -49,6 +52,7 @@ const schema = yup.object().shape({
         setValue("title", todo.title);
         setValue("description", todo.description);
         setValue("date", todo.date);
+        setValue("image", todo.image);
       }
     }
   }, [editingTodoId, todos]);
@@ -59,16 +63,18 @@ const schema = yup.object().shape({
   };
 
   const onSubmit = (data: Omit<Todo, 'id'>) => {
+    const imageURL = img ? URL.createObjectURL(img) : null;
     if(editingTodoId!= null){
-      const updatedTodo = { ...data, id: editingTodoId };
+      const updatedTodo = { ...data, image:imageURL, id: editingTodoId };
       dispatch(updateTodo(updatedTodo));
       setEditingTodoId(null);
     }
     else{
-      const newTodo = { ...data, id: Date.now() };
+      const newTodo = { ...data, image:imageURL , id: Date.now() };
       dispatch(addTodo(newTodo));
     }
     reset();
+    setImg(null);
     setOpen(false);
   }
 
@@ -98,8 +104,11 @@ const schema = yup.object().shape({
                     <TextField label="Description" variant="outlined" {...register("description")} />
                     {errors.description && <span className="text-red-500">{errors.description.message}</span>}
                     <TextField type="date" variant="outlined" {...register("date")} />
+                    <label>Insert Image</label>
+                    <Input type="file" onChange={(e:any) => setImg(e.target.files[0])}/>
+                    {img && <img src={URL.createObjectURL(img)} width={100} height={100} alt="Preview" />}
                     <br />
-                    <div className="flex justify-between items-center gap-3">
+                    <div className="flex justify-between items-center gap-2">
                       <Button variant="contained" color="success" type="submit">{editingTodoId ? "Update Todo" : "Add Todo"}</Button>
                       <Button variant="contained" color="error" onClick={() => setOpen(false)}>Cancel</Button>
                     </div>
@@ -117,6 +126,7 @@ const schema = yup.object().shape({
                     <TableCell align="left">SL No.</TableCell>
                     <TableCell align="center">Title</TableCell>
                     <TableCell align="center">Description</TableCell>
+                    <TableCell align="center">Image</TableCell>
                     <TableCell align="center">Date</TableCell>
                     <TableCell align="center">Actions</TableCell>
                   </TableRow>
@@ -133,6 +143,9 @@ const schema = yup.object().shape({
                       <TableCell align="center">{todo.title}</TableCell>
                       <TableCell align="center">{todo.description}</TableCell>
                       <TableCell align="center">
+                        {todo.image && <img src={typeof todo.image === 'string' ? todo.image : URL.createObjectURL(todo.image)} width={50} height={50} />}
+                      </TableCell>
+                      <TableCell align="center">
                         {new Date(todo.date).toLocaleDateString()}
                       </TableCell>
                       <TableCell align="center">
@@ -142,7 +155,7 @@ const schema = yup.object().shape({
                         <IconButton onClick={()=>handleEdit(todo.id)}><EditOutlinedIcon/></IconButton>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ))}                
                 </TableBody>
               </Table>
             </TableContainer>

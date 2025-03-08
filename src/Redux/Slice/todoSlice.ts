@@ -5,6 +5,7 @@ interface Todo {
     title: string;
     description: string;
     date: Date;
+    image?: string;
 }
 
 interface TodoState {
