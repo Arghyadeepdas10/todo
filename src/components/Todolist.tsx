@@ -52,7 +52,7 @@ const schema = yup.object().shape({
         setValue("title", todo.title);
         setValue("description", todo.description);
         setValue("date", todo.date);
-        setValue("image", todo.image);
+        setValue("image", todo?.image);
       }
     }
   }, [editingTodoId, todos]);
@@ -63,7 +63,7 @@ const schema = yup.object().shape({
   };
 
   const onSubmit = (data: Omit<Todo, 'id'>) => {
-    const imageURL = img ? URL.createObjectURL(img) : null;
+    const imageURL = img ? URL.createObjectURL(img) : (editingTodoId !== null ? todos.find((todo: { id:number}) => todo.id === editingTodoId)?.image : null);
     if(editingTodoId!= null){
       const updatedTodo = { ...data, image:imageURL, id: editingTodoId };
       dispatch(updateTodo(updatedTodo));
